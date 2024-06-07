@@ -29,7 +29,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => $validator->errors()
             ];
-            return response()->json($response, 400);
+            return response()->json($response);
         }
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
@@ -103,10 +103,10 @@ class AuthController extends Controller
                     Mail::to($email)->send(new \App\Mail\VerifyEmail($details));
                     return response()->json('Please check your email for Activation of account.');
                 } catch (\Exception $e) {
-                    return response()->json('Failed to send email. Please try again later.', 500);
+                    return response()->json('Failed to send email. Please try again later.');
                 }
             } else {
-                return response()->json('Failed to save user data. Please try again later.', 500);
+                return response()->json('Failed to save user data. Please try again later.');
             }
         } else {
             return response()->json('User not found.', 404);
