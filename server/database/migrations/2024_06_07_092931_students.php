@@ -15,20 +15,27 @@ return new class extends Migration {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('StudentCNIC');
-            $table->integer('StudentClassID');
-            $table->integer('StudentUserID');
+            $table->unsignedBigInteger('StudentClassID'); // Foreign key referencing classes table
+            $table->unsignedBigInteger('StudentUserID'); // Foreign key referencing users table
             $table->string('StudentGender');
-            $table->integer('StudentTeacherID');
-            $table->string('StudentDOB');
+            $table->unsignedBigInteger('StudentTeacherID'); // Foreign key referencing teachers table
+            $table->date('StudentDOB'); // Use date for DOB
             $table->boolean('StudentAdmissionApproval');
             $table->string('StudentPhoneNumber');
             $table->string('StudentHomeAddress');
-            $table->string('StudentMonthlyFee');
+            $table->decimal('StudentMonthlyFee', 8, 2); // Use decimal for fees
             $table->string('StudentReligion');
             $table->timestamps();
+
+
+
             $table->foreign('StudentUserID')
                 ->references('id')
                 ->on('users')
+                ->onDelete('cascade');
+            $table->foreign('StudentClassID')
+                ->references('id')
+                ->on('classes')
                 ->onDelete('cascade');
         });
     }

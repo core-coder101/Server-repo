@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-            $table->integer('TeacherUserID');
+            $table->unsignedBigInteger('TeacherUserID');
             $table->integer('TeacherName');
             $table->string('TeacherDOB');
             $table->string('TeacherCNIC');
