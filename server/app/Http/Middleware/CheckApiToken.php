@@ -19,7 +19,7 @@ class CheckApiToken
         $token = $request->header('API-TOKEN');
 
         if ($token !== 'IT is to secret you cannot break it :)') {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized Api Token'], 401);
         }
 
         return $next($request);

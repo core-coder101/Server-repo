@@ -17,23 +17,32 @@ use App\Http\Controllers\AuthController;
 
 Route::middleware(['check.api.token'])->group(function () {
 
-    Route::middleware('auth:sanctum')->group(function(){
+    Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
         Route::get('/Hello', function (Request $request) {
             return response()->json("hello");
         });
-        
-});
+
+    });
 
     Route::get('/protected-route', function () {
         return response()->json(['message' => 'You have access']);
     });
 
-    Route::controller(AuthController::class)->group(function(){
-        Route::post('/login','login');
-        Route::post('/register','register');
+    Route::controller(AuthController::class)->group(function () {
+        Route::post('/login', 'login');
+        Route::post('/register', 'register');
     });
 
+});
+
+
+
+Route::get('/test',function(){
+    return "test";
+});
+Route::get('/csrf-token', function () {
+    return response()->json(['csrfToken' => csrf_token()]);
 });

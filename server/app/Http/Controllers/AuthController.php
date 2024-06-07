@@ -28,21 +28,21 @@ class AuthController extends Controller
             ];
             return response()->json($response, 400);
         }
-        if($request->role == "Admin"){
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = Admin::create($input);
+        if ($request->role == "Admin") {
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+            $user = Admin::create($input);
 
-        $success['token'] = $user->createToken('MyApp')->plainTextToken;
-        $success['Admin_Name'] = $user->name;
+            $success['token'] = $user->createToken('MyApp')->plainTextToken;
+            $success['Admin_Name'] = $user->name;
 
-        $response = [
-            'success' => true,
-            'data' => $success
-        ];
-        return response()->json($response, 200);
+            $response = [
+                'success' => true,
+                'data' => $success
+            ];
+            return response()->json($response, 200);
+        }
     }
-}
 
 
 
@@ -51,17 +51,17 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        if($request->role == "Admin"){
-        if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
-            $admin = Auth::guard('admin')->user();
+        if ($request->role == "Admin") {
+            if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
+                $admin = Auth::guard('admin')->user();
 
-            $success['token'] = $admin->createToken('MyApp')->plainTextToken;
-            $success['Admin_name'] = $admin->name;
+                $success['token'] = $admin->createToken('MyApp')->plainTextToken;
+                $success['Admin_name'] = $admin->name;
 
-            return response()->json(['success' => true, 'data' => $success], 200);
-        } else {
-            return response()->json(['success' => false, 'message' => 'NoLogin_Unauthorized'], 400);
+                return response()->json(['success' => true, 'data' => $success], 200);
+            } else {
+                return response()->json(['success' => false, 'message' => 'NoLogin_Unauthorized'], 400);
+            }
         }
-    }
     }
 }
