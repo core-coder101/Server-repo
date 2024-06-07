@@ -6,12 +6,15 @@ use Illuminate\Http\Request;
 use Validator;
 use Auth;
 use App\Models\users;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'userName' => 'required',
@@ -28,19 +31,19 @@ class AuthController extends Controller
             ];
             return response()->json($response, 400);
         }
-            $input = $request->all();
-            $input['password'] = bcrypt($input['password']);
-            $user = users::create($input);
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+        $user = users::create($input);
 
-            $success['token'] = $user->createToken('MyApp')->plainTextToken;
-            $success['Name'] = $user->name;
-            $success['Role'] = $user->role;
+        $success['token'] = $user->createToken('MyApp')->plainTextToken;
+        $success['Name'] = $user->name;
+        $success['Role'] = $user->role;
 
-            $response = [
-                'success' => true,
-                'data' => $success
-            ];
-            return response()->json($response, 200);
+        $response = [
+            'success' => true,
+            'data' => $success
+        ];
+        return response()->json($response, 200);
     }
 
 
@@ -50,16 +53,64 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-            if (Auth::guard('users')->attempt(['email' => $request->email, 'password' => $request->password])) {
-                $user = Auth::guard('users')->user();
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $response = [
+                'success' => false,
+                'message' => $validator->errors()
+            ];
+            return response()->json($response, 401);
+        }
+        if (Auth::guard('users')->attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::guard('users')->user();
 
-                $success['token'] = $user->createToken('MyApp')->plainTextToken;
-                $success['Name'] = $user->name;
-                $success['Role'] = $user->role;
+            $success['token'] = $user->createToken('MyApp')->plainTextToken;
+            $success['Name'] = $user->name;
+            $success['Role'] = $user->role;
 
-                return response()->json(['success' => true, 'data' => $success], 200);
-            } else {
-                return response()->json(['success' => false, 'message' => 'NoLogin_Unauthorized'], 400);
-            }
+            return response()->json(['success' => true, 'data' => $success], 200);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Invalid Login Credentials'], 401);
+        }
     }
+
+
+
+
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $email = $request->email;
+        $user = users::where('email', '=', $email)->first();
+
+        if ($user) {
+            $user->verification_token = Str::random(60); // Add a random verification token
+            if ($user->save()) {
+                $verificationUrl = 'https://localhost:3000/ChangePassword?token=' . $user->verification_token . '&email=' . urlencode($user->email);
+                $details = [
+                    'title' => 'Forgot Password Request',
+                    'body' => 'Please click the following link to reset your password for this email address!',
+                    'verification_url' => $verificationUrl
+                ];
+                try {
+                    Mail::to($email)->send(new \App\Mail\VerifyEmail($details));
+                    return response()->json('Please check your email for Activation of account.');
+                } catch (\Exception $e) {
+                    return response()->json('Failed to send email. Please try again later.', 500);
+                }
+            } else {
+                return response()->json('Failed to save user data. Please try again later.', 500);
+            }
+        } else {
+            return response()->json('User not found.', 404);
+        }
+    }
+
 }

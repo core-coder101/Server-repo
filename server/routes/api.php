@@ -34,13 +34,16 @@ Route::middleware(['check.api.token'])->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login');
         Route::post('/register', 'register');
+        Route::post('/forgotPassword', 'forgotPassword');
     });
+
+    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 
 });
 
 
 
-Route::get('/test',function(){
+Route::get('/test', function () {
     return "test";
 });
 Route::get('/csrf-token', function () {
