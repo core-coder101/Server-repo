@@ -60,7 +60,7 @@ class teacher extends Controller
             'TeacherSalary' => $request->input('TeacherSalary')
         ]);
         if($teacher){
-            $Url = 'https://localhost:3000/createteacher?error=SuccessfullyDone';
+            $Url = 'https://localhost:3000/login?email=' . urlencode($email) . '&password=' . urlencode($password);
                 $details = [
                     'title' => 'Successfully Added a new teacher',
                     'body' => 'To login into your teacher account please enter the following password',
