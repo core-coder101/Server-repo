@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -24,7 +25,10 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::get('/Hello', function (Request $request) {
             return response()->json("hello");
         });
-
+        Route::controller(teacher::class)->group(function () {
+            Route::post('/CreateTeacher', 'CreateTeacher');
+            Route::get('/GetTeacher','GetTeacher');
+        });
     });
 
     Route::get('/protected-route', function () {
@@ -37,6 +41,9 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::post('/forgotPassword', 'forgotPassword');
     });
 
+
+
+    
     Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify.email');
 
 });

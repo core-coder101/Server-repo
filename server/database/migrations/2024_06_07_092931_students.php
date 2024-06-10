@@ -27,7 +27,7 @@ return new class extends Migration {
             $table->string('StudentReligion');
             $table->timestamps();
 
-
+            
 
             $table->foreign('StudentUserID')
                 ->references('id')

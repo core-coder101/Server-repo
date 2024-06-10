@@ -12,7 +12,7 @@ class users extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-        /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -28,6 +28,27 @@ class users extends Authenticatable
         'password',
         'role'
     ];
+
+
+    public function students()
+    {
+        return $this->hasMany(students::class, 'StudentUserID');
+    }
+    public function teachers()
+    {
+        return $this->hasMany(teachers::class, 'TeacherUserID');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(images::class, 'UsersID');
+    }
+
+
+    public function subjects()
+    {
+        return $this->hasMany(subjects::class, 'UsersID');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

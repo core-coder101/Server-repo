@@ -15,14 +15,13 @@ return new class extends Migration {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('TeacherUserID');
-            $table->integer('TeacherName');
-            $table->string('TeacherDOB');
+            $table->Date('TeacherDOB');
             $table->string('TeacherCNIC');
             $table->string('TeacherPhoneNumber');
             $table->string('TeacherHomeAddress');
             $table->string('TeacherReligion');
-            $table->string('TeacherSalary');
-            $table->boolean('TeacherSalaryPaid');
+            $table->integer('TeacherSalary');
+            $table->boolean('TeacherSalaryPaid')->default(false);
             $table->timestamps();
             $table->foreign('TeacherUserID')
                 ->references('id')

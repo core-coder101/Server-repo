@@ -8,4 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class subjects extends Model
 {
     use HasFactory;
+
+
+
+    protected $fillable = [
+        'UsersID', 
+        'SubjectName'
+    ];
+
+    // Define the relationship with the User model
+    public function user()
+    {
+        return $this->belongsTo(users::class, 'UsersID');
+    }
 }

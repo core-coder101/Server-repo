@@ -89,9 +89,9 @@ class AuthController extends Controller
 
         $email = $request->email;
         $user = users::where('email', '=', $email)->first();
-
+        
         if ($user) {
-            $user->verification_token = Str::random(60); // Add a random verification token
+            $user->verification_token = Str::random(60);
             if ($user->save()) {
                 $verificationUrl = 'https://localhost:3000/ChangePassword?token=' . $user->verification_token . '&email=' . urlencode($user->email);
                 $details = [
@@ -112,5 +112,4 @@ class AuthController extends Controller
             return response()->json('User not found.', 404);
         }
     }
-
 }
