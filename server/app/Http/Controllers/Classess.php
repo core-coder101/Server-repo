@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\classes;
-use App\Models\users;
-use App\Models\teachers;
 
 
 class Classess extends Controller

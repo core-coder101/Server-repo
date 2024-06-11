@@ -11,9 +11,9 @@ class students extends Model
     protected $fillable = [
         'StudentCNIC', 
         'StudentClassID', 
-        'StudentUserID', 
+        'StudentUserID',
         'StudentGender', 
-        'StudentTeacherID', 
+        'StudentTeacherID',
         'StudentDOB', 
         'StudentAdmissionApproval', 
         'StudentPhoneNumber', 

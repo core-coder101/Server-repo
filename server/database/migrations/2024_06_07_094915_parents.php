@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('GuardiansPhoneNumber');
             $table->string('GuardiansPhoneNumber2')->nullable();
             $table->string('GuardiansEmail');
-            $table->string('HomeAddress');
+            $table->string('HomeAddress')->nullable();
             $table->timestamps();
             $table->foreign('StudentID')
                 ->references('id')
