@@ -26,7 +26,6 @@ class teacher extends Controller
             'TeacherReligion' => 'required',
             'TeacherSalary' => 'required'
         ]);
-
         if ($validator->fails()) {
             $response = [
                 'success' => false,
@@ -69,10 +68,27 @@ class teacher extends Controller
                 ];
                 try {
                     Mail::to($email)->send(new \App\Mail\passwordSender($details));
-                    return response()->json('Please check your email for Activation of account.');
+                    $response = [
+                        'success' => true,
+                        'message' => "Please check your email for Activation of account."
+                    ];
+                    return response()->json($response);
                 } catch (\Exception $e) {
-                    return response()->json('Failed to send email. Please try again later.');
+                    $response = [
+                        'success' => true,
+                        'message' => "Failed to send email. Please try again later."
+                    ];
+                    return response()->json($response);
                 }
+        }
+        else{
+            $response = [
+                'success' => false,
+                'message' => "Sorry! Something went wrong. Please try again later."
+            ];
+            $user = users::find($userId);
+            $user->delete();
+            return response()->json($response);
         }
     }
     else{
@@ -85,6 +101,12 @@ class teacher extends Controller
     }
     public function GetTeacher(){
         $teachers = teachers::with('user')->get();
-        return response()->json($teachers);        
+        if($teachers){
+        $response = [
+            'success' => true,
+            'data' => $teachers
+        ];
+        return response()->json($response); 
+        }       
     }
 }

@@ -45,7 +45,7 @@ class Classess extends Controller
         } else {
             $response = [
                 'success' => false,
-                'message' => "Only Admin Can Create Teacher"
+                'message' => "Only Admin Can Create Class"
             ];
             return response()->json($response);
         }
@@ -91,7 +91,7 @@ class Classess extends Controller
         } else {
             $response = [
                 'success' => false,
-                'message' => "Only Admin Can Create Teacher"
+                'message' => "Only Admin Can Update Class"
             ];
             return response()->json($response);
         }
