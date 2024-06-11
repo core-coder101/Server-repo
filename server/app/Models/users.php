@@ -34,11 +34,10 @@ class users extends Authenticatable
     {
         return $this->hasMany(students::class, 'StudentUserID');
     }
-    public function teachers()
+    public function teacher()
     {
         return $this->hasMany(teachers::class, 'TeacherUserID');
     }
-
     public function images()
     {
         return $this->hasMany(images::class, 'UsersID');

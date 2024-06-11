@@ -10,6 +10,7 @@ class teachers extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'TeacherUserID',
         'TeacherDOB',
         'TeacherCNIC',
@@ -19,13 +20,22 @@ class teachers extends Model
         'TeacherSalary',
         'TeacherSalaryPaid'
     ];
+
+    protected $primaryKey = 'id';
+
+    protected $table = 'teachers';
+
     
     public function students()
     {
         return $this->hasMany(students::class, 'StudentTeacherID');
     }
-    public function users()
+    public function user()
     {
         return $this->belongsTo(users::class, 'TeacherUserID');
+    }
+    public function classes()
+    {
+        return $this->belongsTo(classes::class, 'id');
     }
 }

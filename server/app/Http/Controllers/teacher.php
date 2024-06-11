@@ -84,16 +84,7 @@ class teacher extends Controller
     }
     }
     public function GetTeacher(){
-        $teachers = teachers::all();
-
-        $users = [];
-        
-        // Loop through each teacher
-        foreach ($teachers as $teacher) {
-            // Retrieve all users associated with the current teacher
-            $users[$teacher->id] = $teacher->users()->get()->toArray();
-        }
-        return response()->json($users);
-        
+        $teachers = teachers::with('user')->get();
+        return response()->json($teachers);        
     }
 }
