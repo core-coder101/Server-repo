@@ -20,14 +20,14 @@ return new class extends Migration {
             $table->string('StudentGender');
             $table->unsignedBigInteger('StudentTeacherID'); // Foreign key referencing teachers table
             $table->date('StudentDOB'); // Use date for DOB
-            $table->boolean('StudentAdmissionApproval');
+            $table->boolean('StudentAdmissionApproval')->default(false);
             $table->string('StudentPhoneNumber');
             $table->string('StudentHomeAddress');
             $table->decimal('StudentMonthlyFee', 8, 2); // Use decimal for fees
             $table->string('StudentReligion');
             $table->timestamps();
 
-            
+
 
             $table->foreign('StudentUserID')
                 ->references('id')

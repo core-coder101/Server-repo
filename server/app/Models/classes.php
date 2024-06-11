@@ -9,6 +9,15 @@ class classes extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'ClassName',
+        'ClassRank',
+        'ClassFloor',
+        'ClassTeacherID',
+        'ClassCapacity'
+    ];
+
+    protected $primaryKey = 'id';
 
     protected $table = 'classes';
 

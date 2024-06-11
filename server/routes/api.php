@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Classess;
 use App\Http\Controllers\teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,11 @@ Route::middleware(['check.api.token'])->group(function () {
         Route::controller(teacher::class)->group(function () {
             Route::post('/CreateTeacher', 'CreateTeacher');
             Route::get('/GetTeacher','GetTeacher');
+        });
+        Route::controller(Classess::class)->group(function (){
+            Route::post('/CreateClass','CreateClass');
+            Route::get('/GetClasses','GetClasses');
+            Route::post('/Delete','Delete');
         });
     });
 

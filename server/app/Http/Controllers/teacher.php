@@ -34,7 +34,7 @@ class teacher extends Controller
             ];
             return response()->json($response);
         }
-        
+
         $user = $request->user();
 
         if($user->role == "Admin"){
@@ -60,7 +60,7 @@ class teacher extends Controller
             'TeacherSalary' => $request->input('TeacherSalary')
         ]);
         if($teacher){
-            $Url = 'https://localhost:3000/login?email=' . urlencode($email) . '&password=' . urlencode($password);
+            $Url = 'http://localhost:3000/login?email=' . urlencode($email) . '&password=' . urlencode($password);
                 $details = [
                     'title' => 'Successfully Added a new teacher',
                     'body' => 'To login into your teacher account please enter the following password',
@@ -93,8 +93,6 @@ class teacher extends Controller
             // Retrieve all users associated with the current teacher
             $users[$teacher->id] = $teacher->users()->get()->toArray();
         }
-        
-        // Return the structured data
         return response()->json($users);
         
     }
