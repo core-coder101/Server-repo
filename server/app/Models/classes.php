@@ -21,13 +21,12 @@ class classes extends Model
 
     protected $table = 'classes';
 
-    // Define the relationship with the Student model
     public function students()
     {
         return $this->hasMany(students::class, 'StudentClassID');
     }
     public function teachers()
     {
-        return $this->hasMany(teachers::class, 'id');
+        return $this->belongsTo(teachers::class, 'ClassTeacherID');
     }
 }

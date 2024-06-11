@@ -20,7 +20,7 @@ class parents extends Model
         'GuardiansPhoneNumber', 
         'GuardiansPhoneNumber2', 
         'GuardiansEmail', 
-        'HomeAddress'
+        'GHomeAddress'
     ];
 
     // Define the relationship with the Student model

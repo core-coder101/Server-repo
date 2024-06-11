@@ -103,11 +103,11 @@ class Classess extends Controller
 
     public function GetClasses()
     {
-        $classes = classes::all();
-        if ($classes) {
+        $Classes = classes::with('teachers.user')->get();
+        if ($Classes) {
             $response = [
                 'success' => true,
-                'data' => $classes
+                'data' => $Classes
             ];
             return response()->json($response);
         } else {

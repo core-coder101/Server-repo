@@ -36,6 +36,6 @@ class teachers extends Model
     }
     public function classes()
     {
-        return $this->belongsTo(classes::class, 'id');
+        return $this->hasMany(classes::class, 'ClassTeacherID');
     }
 }
