@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Validator;
 use Auth;
 use App\Models\users;
+use App\Models\subjects;
 use App\Models\teachers;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,7 @@ class teacher extends Controller
             'userName' => 'required|string|max:255',
             'email' => 'required|email',
             'TeacherDOB' => 'required|date',
+            'subjects' => 'required',
             'TeacherCNIC' => 'required|string',
             'TeacherPhoneNumber' => 'required|string|max:255',
             'TeacherHomeAddress' => 'required',
@@ -49,6 +51,13 @@ class teacher extends Controller
             'password' => $BcryptPassword
         ]);
         $userId = $user->id;
+        $subjects = $request->input('subjects');
+        foreach($subjects as $subject){
+            $subjectResult = subjects::create([
+                'UsersID' => $userId,
+                'SubjectName' => $subject
+            ]);
+        }
         $teacher = teachers::create([
             'TeacherUserID' => $userId,
             'TeacherDOB' => $request->input('TeacherDOB'),

@@ -27,6 +27,7 @@ class student extends Controller
             'StudentDOB' => 'required|date',
             'StudentGender' => 'required|string',
             'StudentCNIC' => 'required|string|max:255',
+            'subjects' => 'required',
             'StudentClassID' => 'required|string',
             'StudentPhoneNumber' => 'required|string|max:125',
             'StudentHomeAddress' => 'required|string|max:255',
@@ -65,6 +66,13 @@ class student extends Controller
                 'password' => $BcryptPassword
             ]);
             $userId = $user->id;
+            $subjects = $request->input('subjects');
+        foreach($subjects as $subject){
+            $subjectResult = subjects::create([
+                'UsersID' => $userId,
+                'SubjectName' => $subject
+            ]);
+        }
             $class = classes::find($ClassID);
             $StudentTeacherID = $class->ClassTeacherID;
             $student = students::create([
