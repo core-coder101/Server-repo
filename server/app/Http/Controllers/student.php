@@ -6,6 +6,7 @@ use App\Models\classes;
 use App\Models\images;
 use App\Models\parents;
 use App\Models\students;
+use App\Models\subjects;
 use Illuminate\Http\Request;
 use Validator;
 use Auth;
@@ -220,7 +221,7 @@ class student extends Controller
             if ($user->role == "Admin") {
                 $ID = $request->input('ID');
                 $student = students::find($ID);
-                
+
                 if ($student) {
                     $student->delete();
                         $response = [
