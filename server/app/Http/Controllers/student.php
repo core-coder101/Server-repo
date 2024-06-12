@@ -195,4 +195,41 @@ class student extends Controller
             }
         }
     }
+    public function Delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ID' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $response = [
+                'success' => false,
+                'message' => $validator->errors()
+            ];
+            return response()->json($response);
+        } else {
+            $user = $request->user();
+
+            if ($user->role == "Admin") {
+                $ID = $request->input('ID');
+                $student = students::find($ID);
+                
+                if ($student) {
+                    $student->delete();
+                        $response = [
+                            'success' => true,
+                            'data' => "Successfully deleted"
+                        ];
+                        return response()->json($response);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Class not found']);
+                }
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => "Only Admin Can Delete Class"
+                ];
+                return response()->json($response);
+            }
+        }
+    }
 }
