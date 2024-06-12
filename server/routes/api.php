@@ -40,6 +40,7 @@ Route::middleware(['check.api.token'])->group(function () {
         });
         Route::controller(student::class)->group(function (){
             Route::post('/CreateStudent','CreateStudent');
+            Route::post('/GetStudentInformation','GetStudentInformation');
         });
     });
 

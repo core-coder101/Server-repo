@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\classes;
+use App\Models\images;
 use App\Models\parents;
 use App\Models\students;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class student extends Controller
             'GuardiansPhoneNumber2' => 'string|max:255',
             'HomeAddress' => 'required|string|max:255',
             'GuardiansEmail' => 'required|email|max:255',
+            'image' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -65,6 +67,33 @@ class student extends Controller
                 'password' => $BcryptPassword
             ]);
             $userId = $user->id;
+            $pic = $request->input('image');
+            if (isset($pic)) {
+                // Ensure that an image was uploaded
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
+
+                if ($imageData === false) {
+                    return response()->json(['success' => false, 'message' => 'Failed to decode image data'], 400);
+                }
+                $mimeType = mime_content_type($pic);
+
+                $extension = image_type_to_extension(exif_imagetype($pic));
+
+                $filename = uniqid() . $extension; // You can adjust the filename extension based on the image format
+
+                $storagePath = 'images/';
+
+                $savePath = public_path($storagePath . $filename);
+                if (file_put_contents($savePath, $imageData) === false) {
+                    return response()->json(['success' => false, 'message' => 'Failed to save image file'], 500);
+                }
+
+                // Assuming you want to associate the image path with the newly created record
+                $image = new images();
+                $image->UsersID = $userId;
+                $image->ImageName = $storagePath . $filename; // Store the image path
+                $image->save();
+            }
             $class = classes::find($ClassID);
             $StudentTeacherID = $class->ClassTeacherID;
             $student = students::create([
@@ -112,8 +141,7 @@ class student extends Controller
                     ];
                     return response()->json($response);
                 }
-            }
-            else{
+            } else {
                 $response = [
                     'success' => false,
                     'message' => "Sorry! Something went wrong. Please try again later."
@@ -128,6 +156,43 @@ class student extends Controller
                 'message' => "Only Admin Can Create Student"
             ];
             return response()->json($response);
+        }
+    }
+    public function GetStudentInformation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ClassRank' => 'required',
+            'ClassName' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $response = [
+                'success' => false,
+                'message' => $validator->errors()
+            ];
+            return response()->json($response);
+        } else {
+            $ClassRank = $request->input('ClassRank');
+            $ClassName = $request->input('ClassName');
+            $Class = classes::where('ClassRank', $ClassRank)
+                ->where('ClassName', $ClassName)
+                ->first();
+            if ($Class) {
+                $students = $Class->students()->with('users.images', 'parents')->get();
+                if ($students) {
+                    foreach ($students as $student) {
+                        if (isset($student->users->images[0])) {
+                            $imgPath = $student->users->images[0]->ImageName;
+                            $data = base64_encode(file_get_contents(public_path($imgPath)));
+                            $student->users->images[0]->setAttribute('data', $data);
+                        }
+                    }
+                    return response()->json(['success' => true, 'data' => $students]);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Student not found']);
+                }
+            } else {
+                return response()->json(['success' => false, 'message' => 'Class not found']);
+            }
         }
     }
 }
