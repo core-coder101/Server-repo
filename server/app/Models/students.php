@@ -23,7 +23,7 @@ class students extends Model
     ];
 
 
-    public function user()
+    public function users()
     {
         return $this->belongsTo(users::class, 'StudentUserID');
     }

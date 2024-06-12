@@ -35,11 +35,13 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::post('/CreateClass','CreateClass');
             Route::post('/UpdateClass','UpdateClass');
             Route::get('/GetClasses','GetClasses');
-            Route::post('/Delete','Delete');
+            Route::post('/DeleteClass','Delete');
             Route::get('/GetClassData','GetClassData');
         });
         Route::controller(student::class)->group(function (){
             Route::post('/CreateStudent','CreateStudent');
+            Route::post('/GetStudentInformation','GetStudentInformation');
+            Route::post('/DeleteStudent','Delete');
         });
     });
 

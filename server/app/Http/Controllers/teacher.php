@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\images;
 use Illuminate\Http\Request;
 use Validator;
 use Auth;
@@ -26,7 +27,8 @@ class teacher extends Controller
             'TeacherPhoneNumber' => 'required|string|max:255',
             'TeacherHomeAddress' => 'required',
             'TeacherReligion' => 'required',
-            'TeacherSalary' => 'required'
+            'TeacherSalary' => 'required',
+            'image' => 'required'
         ]);
         if ($validator->fails()) {
             $response = [
@@ -57,6 +59,33 @@ class teacher extends Controller
                 'UsersID' => $userId,
                 'SubjectName' => $subject
             ]);
+        }
+        $pic = $request->input('image');
+        if (isset ($pic)) {
+            // Ensure that an image was uploaded
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
+
+            if ($imageData === false) {
+                return response()->json(['success' => false , 'message' => 'Failed to decode image data'], 400);
+            }
+            $mimeType = mime_content_type($pic);
+
+            $extension = image_type_to_extension(exif_imagetype($pic));
+
+            $filename = uniqid() . $extension; // You can adjust the filename extension based on the image format
+
+            $storagePath = 'images/';
+
+            $savePath = public_path($storagePath . $filename);
+            if (file_put_contents($savePath, $imageData) === false) {
+                return response()->json(['success' => false , 'message' => 'Failed to save image file'], 500);
+            }
+
+            // Assuming you want to associate the image path with the newly created record
+            $image = new images();
+            $image->UsersID = $userId;
+            $image->ImageName = $storagePath . $filename; // Store the image path
+            $image->save();
         }
         $teacher = teachers::create([
             'TeacherUserID' => $userId,

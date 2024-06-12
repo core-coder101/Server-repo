@@ -10,6 +10,13 @@ class images extends Model
     use HasFactory;
 
 
+    protected $primaryKey = 'id';
+
+
+    protected $fillable = [
+        'UsersID',
+        'ImageName'
+    ];
 
     public function images()
     {
