@@ -303,7 +303,7 @@ public function GetTeacherInformation(Request $request){
 
 
     public function GetTeacher(){
-        $teachers = teachers::with('users')->get();
+        $teachers = teachers::with('users','classes')->get();
         if($teachers){
         $response = [
             'success' => true,
