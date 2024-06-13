@@ -223,7 +223,7 @@ public function UpdateTeacher(Request $request)
                     'TeacherReligion' => $request->input('TeacherReligion'),
                     'TeacherSalary' => $request->input('TeacherSalary')
                 ]);
-                
+
                 return response()->json(['success' => true, 'message' => "Successfully Updated Student Information"]);
             }
         
@@ -235,12 +235,47 @@ public function UpdateTeacher(Request $request)
 
 
 
+public function GetTeacherInformation(Request $request){
+    $user = $request->user();
+    if($user->role == "Admin") {
+        $ClassRank = $request->input('ClassRank');
+        $ClassName = $request->input('ClassName');
+        if($ClassRank == "" && $ClassName == ""){
+            $teachers = teachers::with(['users.images','classes', 'users.subjects'])
+            ->get();
+            if ($teachers) {
+                foreach ($teachers as $teacher) {
+                    if (isset($teacher->users->images[0])) {
+                        $imgPath = $teacher->users->images[0]->ImageName;
+                        $data = base64_encode(file_get_contents(public_path($imgPath)));
+                        $teacher->users->images[0]->setAttribute('data', $data);
+                    }
+                }
+                return response()->json(['success' => true, 'data' => $teachers]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'teacher not found']);
+            }
+        }
+        else{
+            
+        }
+    }
+    else{
+        $response = [
+            'success' => false,
+            'message' => "Only Admin Can Edit Class"
+        ];
+        return response()->json($response);
+    }
+}
+
+
 
     public function GetTeacherData(Request $request){
         $ID = $request->query('ID');
         $user = $request->user();
 
-        if ($user->role == "Admin") {
+        if($user->role == "Admin") {
             $teachers = teachers::where('TeacherUserID', $ID)
                     ->with(['users.images', 'users.subjects'])
                     ->get();
@@ -254,7 +289,7 @@ public function UpdateTeacher(Request $request)
                     }
                     return response()->json(['success' => true, 'data' => $teacher]);
                 } else {
-                    return response()->json(['success' => false, 'message' => 'Student not found']);
+                    return response()->json(['success' => false, 'message' => 'teacher not found']);
                 }
         } else {
             $response = [
@@ -268,7 +303,7 @@ public function UpdateTeacher(Request $request)
 
 
     public function GetTeacher(){
-        $teachers = teachers::with('user')->get();
+        $teachers = teachers::with('users')->get();
         if($teachers){
         $response = [
             'success' => true,

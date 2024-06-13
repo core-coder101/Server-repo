@@ -226,7 +226,7 @@ class student extends Controller
                     $student->delete();
                         $response = [
                             'success' => true,
-                            'data' => "Successfully deleted"
+                            'message' => "Successfully deleted"
                         ];
                         return response()->json($response);
                 } else {
