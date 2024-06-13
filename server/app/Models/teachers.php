@@ -30,7 +30,7 @@ class teachers extends Model
     {
         return $this->hasMany(students::class, 'StudentTeacherID');
     }
-    public function user()
+    public function users()
     {
         return $this->belongsTo(users::class, 'TeacherUserID');
     }

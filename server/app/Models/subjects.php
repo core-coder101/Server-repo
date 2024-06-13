@@ -17,7 +17,7 @@ class subjects extends Model
     ];
 
     // Define the relationship with the User model
-    public function user()
+    public function users()
     {
         return $this->belongsTo(users::class, 'UsersID');
     }

@@ -241,4 +241,151 @@ class student extends Controller
             }
         }
     }
+
+
+
+    public function UpdateStudent(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'ID' => 'required|exists:users,id',
+        'name' => 'required|string|max:255',
+        'userName' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'StudentDOB' => 'required|date',
+        'StudentGender' => 'required|string',
+        'StudentCNIC' => 'required|string|max:255',
+        'subjects' => 'required|array',
+        'StudentClassID' => 'required|exists:classes,id',
+        'StudentPhoneNumber' => 'required|string|max:125',
+        'StudentHomeAddress' => 'required|string|max:255',
+        'StudentReligion' => 'required|string|max:255',
+        'StudentMonthlyFee' => 'required|max:255',
+        'FatherName' => 'required|string|max:255',
+        'MotherName' => 'required|string|max:255',
+        'GuardiansCNIC' => 'required|string|max:255',
+        'GuardiansPhoneNumber' => 'required|string|max:255',
+        'GuardiansPhoneNumber2' => 'nullable|string|max:255',
+        'HomeAddress' => 'required|string|max:255',
+        'GuardiansEmail' => 'required|email|max:255',
+        'image' => 'required|string' // Assuming image is base64 encoded
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['success' => false, 'message' => $validator->errors()], 400);
+    }
+
+    $user = $request->user();
+    if ($user->role != "Admin") {
+        return response()->json(['success' => false, 'message' => "Only Admin Can Update Student"], 403);
+    }
+
+    $ID = $request->input('ID');
+    $user = users::where('id', $ID)->first();
+
+    if ($user) {
+        $user->update([
+            'name' => $request->input('name'),
+            'userName' => $request->input('userName'),
+            'role' => "Student",
+            'email' => $request->input('email'),
+        ]);
+
+        $subjects = $request->input('subjects');
+        subjects::where('UsersID', $ID)->delete(); // Remove old subjects
+        foreach ($subjects as $subject) {
+            subjects::create([
+                'UsersID' => $ID,
+                'SubjectName' => $subject
+            ]);
+        }
+
+        // Handle image upload
+        $pic = $request->input('image');
+        if ($pic) {
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
+            if ($imageData === false) {
+                return response()->json(['success' => false, 'message' => 'Failed to decode image data'], 400);
+            }
+
+            $extension = image_type_to_extension(exif_imagetype($pic));
+            $filename = uniqid() . $extension;
+            $storagePath = 'images/';
+            $savePath = public_path($storagePath . $filename);
+
+            if (file_put_contents($savePath, $imageData) === false) {
+                return response()->json(['success' => false, 'message' => 'Failed to save image file'], 500);
+            }
+
+            images::updateOrCreate(['UsersID' => $ID], ['ImageName' => $storagePath . $filename]);
+        }
+
+        $class = classes::find($request->input('StudentClassID'));
+        if ($class) {
+            $student = students::where('StudentUserID', $ID)->first();
+            if ($student) {
+                $student->update([
+                    'StudentClassID' => $class->id,
+                    'StudentDOB' => $request->input('StudentDOB'),
+                    'StudentGender' => $request->input('StudentGender'),
+                    'StudentCNIC' => $request->input('StudentCNIC'),
+                    'StudentPhoneNumber' => $request->input('StudentPhoneNumber'),
+                    'StudentHomeAddress' => $request->input('StudentHomeAddress'),
+                    'StudentReligion' => $request->input('StudentReligion'),
+                    'StudentMonthlyFee' => $request->input('StudentMonthlyFee'),
+                    'StudentTeacherID' => $class->ClassTeacherID
+                ]);
+
+                parents::updateOrCreate(
+                    ['StudentID' => $student->id],
+                    [
+                        'FatherName' => $request->input('FatherName'),
+                        'MotherName' => $request->input('MotherName'),
+                        'GuardiansCNIC' => $request->input('GuardiansCNIC'),
+                        'GuardiansPhoneNumber' => $request->input('GuardiansPhoneNumber'),
+                        'GuardiansPhoneNumber2' => $request->input('GuardiansPhoneNumber2'),
+                        'HomeAddress' => $request->input('HomeAddress'),
+                        'GuardiansEmail' => $request->input('GuardiansEmail')
+                    ]
+                );
+
+                return response()->json(['success' => true, 'message' => "Successfully Updated Student Information"]);
+            }
+        }
+    }
+
+    return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
+}
+
+
+
+
+
+    public function GetStudentData(Request $request)
+    {
+        $ID = $request->query('ID');
+        $user = $request->user();
+        if ($user->role == "Admin") {
+            $students = students::where('StudentUserID', $ID)
+                    ->with(['users.images', 'users.subjects', 'parents'])
+                    ->get();
+                if ($students) {
+                    foreach ($students as $student) {
+                        if (isset($student->users->images[0])) {
+                            $imgPath = $student->users->images[0]->ImageName;
+                            $data = base64_encode(file_get_contents(public_path($imgPath)));
+                            $student->users->images[0]->setAttribute('data', $data);
+                        }
+                    }
+                    return response()->json(['success' => true, 'data' => $students]);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Student not found']);
+                }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => "Only Admin Can Edit Class"
+            ];
+            return response()->json($response);
+        }
+    }
 }

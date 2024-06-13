@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\classes;
 use App\Models\images;
+use App\Models\students;
 use Illuminate\Http\Request;
 use Validator;
 use Auth;
@@ -136,7 +138,135 @@ class teacher extends Controller
         ];
         return response()->json($response);
     }
+    
+}
+
+
+
+
+
+
+public function UpdateTeacher(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'ID' => 'required|exists:users,id',
+        'name' => 'required|string|max:255',
+        'userName' => 'required|string|max:255',
+        'email' => 'required|email',
+        'TeacherDOB' => 'required|date',
+        'subjects' => 'required',
+        'TeacherCNIC' => 'required|string',
+        'TeacherPhoneNumber' => 'required|string|max:255',
+        'TeacherHomeAddress' => 'required',
+        'TeacherReligion' => 'required',
+        'TeacherSalary' => 'required',
+        'image' => 'required'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['success' => false, 'message' => $validator->errors()], 400);
     }
+
+    $user = $request->user();
+    if ($user->role != "Admin") {
+        return response()->json(['success' => false, 'message' => "Only Admin Can Update Teacher"], 403);
+    }
+
+    $ID = $request->input('ID');
+    $user = users::where('id', $ID)->first();
+
+    if ($user) {
+        $user->update([
+            'name' => $request->input('name'),
+            'userName' => $request->input('userName'),
+            'role' => "Teacher",
+            'email' => $request->input('email'),
+        ]);
+
+        $subjects = $request->input('subjects');
+        subjects::where('UsersID', $ID)->delete(); // Remove old subjects
+        foreach ($subjects as $subject) {
+            subjects::create([
+                'UsersID' => $ID,
+                'SubjectName' => $subject
+            ]);
+        }
+
+        // Handle image upload
+        $pic = $request->input('image');
+        if ($pic) {
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $pic));
+            if ($imageData === false) {
+                return response()->json(['success' => false, 'message' => 'Failed to decode image data'], 400);
+            }
+
+            $extension = image_type_to_extension(exif_imagetype($pic));
+            $filename = uniqid() . $extension;
+            $storagePath = 'images/';
+            $savePath = public_path($storagePath . $filename);
+
+            if (file_put_contents($savePath, $imageData) === false) {
+                return response()->json(['success' => false, 'message' => 'Failed to save image file'], 500);
+            }
+
+            images::updateOrCreate(['UsersID' => $ID], ['ImageName' => $storagePath . $filename]);
+        }
+
+            $teacher = teachers::where('TeacherUserID', $ID)->first();
+            if ($teacher) {
+                $teacher->update([
+                    'TeacherUserID' => $ID,
+                    'TeacherDOB' => $request->input('TeacherDOB'),
+                    'TeacherCNIC' => $request->input('TeacherCNIC'),
+                    'TeacherPhoneNumber' => $request->input('TeacherPhoneNumber'),
+                    'TeacherHomeAddress' => $request->input('TeacherHomeAddress'),
+                    'TeacherReligion' => $request->input('TeacherReligion'),
+                    'TeacherSalary' => $request->input('TeacherSalary')
+                ]);
+                
+                return response()->json(['success' => true, 'message' => "Successfully Updated Student Information"]);
+            }
+        
+    }
+
+    return response()->json(['success' => false, 'message' => "Sorry! Something went wrong. Please try again later."]);
+}
+
+
+
+
+
+    public function GetTeacherData(Request $request){
+        $ID = $request->query('ID');
+        $user = $request->user();
+
+        if ($user->role == "Admin") {
+            $teachers = teachers::where('TeacherUserID', $ID)
+                    ->with(['users.images', 'users.subjects'])
+                    ->get();
+                if ($teachers) {
+                    foreach ($teachers as $teacher) {
+                        if (isset($teacher->users->images[0])) {
+                            $imgPath = $teacher->users->images[0]->ImageName;
+                            $data = base64_encode(file_get_contents(public_path($imgPath)));
+                            $teacher->users->images[0]->setAttribute('data', $data);
+                        }
+                    }
+                    return response()->json(['success' => true, 'data' => $teacher]);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Student not found']);
+                }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => "Only Admin Can Edit Class"
+            ];
+            return response()->json($response);
+        }
+    }
+
+
+
     public function GetTeacher(){
         $teachers = teachers::with('user')->get();
         if($teachers){

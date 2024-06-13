@@ -101,7 +101,7 @@ class Classess extends Controller
 
     public function GetClasses()
     {
-        $Classes = classes::with('teachers.user')->get();
+        $Classes = classes::with('teachers.users')->get();
         if ($Classes) {
             $response = [
                 'success' => true,
