@@ -146,6 +146,46 @@ class teacher extends Controller
 
 
 
+public function Delete(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'ID' => 'required',
+    ]);
+    if ($validator->fails()) {
+        $response = [
+            'success' => false,
+            'message' => $validator->errors()
+        ];
+        return response()->json($response);
+    } else {
+        $user = $request->user();
+
+        if ($user->role == "Admin") {
+            $ID = $request->input('ID');
+            $teacher = teachers::find($ID);
+
+            if ($teacher) {
+                $teacher->delete();
+                    $response = [
+                        'success' => true,
+                        'message' => "Successfully deleted"
+                    ];
+                    return response()->json($response);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Class not found']);
+            }
+        } else {
+            $response = [
+                'success' => false,
+                'message' => "Only Admin Can Delete Class"
+            ];
+            return response()->json($response);
+        }
+    }
+}
+
+
+
 public function UpdateTeacher(Request $request)
 {
     $validator = Validator::make($request->all(), [
@@ -257,8 +297,25 @@ public function GetTeacherInformation(Request $request){
             }
         }
         else{
-            
+            $Class = classes::where('ClassRank', $ClassRank)
+            ->where('ClassName', $ClassName)
+            ->first();
+        if ($Class) {
+            $teachers = $Class->teachers()->with('users.images','classes')->get();
+            if ($teachers) {
+                foreach ($teachers as $teacher) {
+                    if (isset($teacher->users->images[0])) {
+                        $imgPath = $teacher->users->images[0]->ImageName;
+                        $data = base64_encode(file_get_contents(public_path($imgPath)));
+                        $teacher->users->images[0]->setAttribute('data', $data);
+                    }
+                }
+                return response()->json(['success' => true, 'data' => $teachers]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'teacher not found']);
+            }
         }
+    }
     }
     else{
         $response = [
