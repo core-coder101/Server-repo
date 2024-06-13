@@ -32,6 +32,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetTeacher','GetTeacher');
             Route::get('/GetTeacherData','GetTeacherData');
             Route::post('/UpdateTeacher','UpdateTeacher');
+            Route::post('/GetTeacherInformation','GetTeacherInformation');
         });
         Route::controller(Classess::class)->group(function (){
             Route::post('/CreateClass','CreateClass');
@@ -39,6 +40,7 @@ Route::middleware(['check.api.token'])->group(function () {
             Route::get('/GetClasses','GetClasses');
             Route::post('/DeleteClass','Delete');
             Route::get('/GetClassData','GetClassData');
+            
         });
         Route::controller(student::class)->group(function (){
             Route::post('/CreateStudent','CreateStudent');
